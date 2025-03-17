@@ -1,0 +1,350 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+img {
+    max-width: 100%;
+    border-radius: 100px;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: rgba(233, 236, 239, 1);
+    color: rgba(51, 51, 51, 1);
+}
+
+header {
+    background-color: rgba(52, 58, 64, 1);
+    color: rgba(255, 255, 255, 1);
+    padding: 16px 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+}
+
+header .logo {
+    width: 60px;
+    height: auto;
+    margin-right: 15px;
+}
+
+header h1 {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 32px;
+    gap: 32px;
+}
+
+form {
+    background-color: rgba(255, 255, 255, 1);
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-top: 16px;
+    font-weight: 600;
+    color: rgba(73, 80, 87, 1);
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    border: 1px solid rgba(206, 212, 218, 1);
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: rgba(248, 249, 250, 1);
+    transition: border 0.3s;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: rgba(0, 123, 255, 1);
+    background-color: rgba(255, 255, 255, 1);
+}
+
+button[type="submit"] {
+    margin-top: 24px;
+    padding: 12px 24px;
+    background-color: rgba(0, 123, 255, 1);
+    color: rgba(255, 255, 255, 1);
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: rgba(0, 86, 179, 1);
+}
+
+#savedExperiences {
+    width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
+    padding: 16px;
+    background-color: rgba(248, 249, 250, 1);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+
+.experience {
+    margin-bottom: 16px;
+    padding: 16px;
+    border: 1px solid rgba(206, 212, 218, 1);
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.experience:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.experience p {
+    margin: 4px 0;
+    font-size: 14px;
+    color: rgba(73, 80, 87, 1);
+}
+
+.experience strong {
+    font-weight: 600;
+    color: rgba(52, 58, 64, 1);
+}
+
+#summaryLink {
+    margin-top: 16px;
+    text-align: center;
+}
+
+#summaryLink .btn-summary {
+    padding: 12px 24px;
+    background-color: rgba(0, 123, 255, 1);
+    color: rgba(255, 255, 255, 1);
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+#summaryLink .btn-summary:hover {
+    background-color: rgba(0, 86, 179, 1);
+    transform: translateY(-2px);
+}
+
+
+
+#resetButton {
+    margin-top: 10px;
+    text-align: center;
+    padding: 12px 24px;
+    background-color: rgba(220, 53, 69, 1);
+    color: rgba(255, 255, 255, 1);
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+#resetButton:hover {
+    background-color: rgba(170, 28, 46, 1);
+
+}
+
+footer {
+    text-align: center;
+    padding: 16px;
+    background-color: rgba(52, 58, 64, 1);
+    color: rgba(248, 249, 250, 1);
+    font-size: 14px;
+}
+#secondPart{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#secondPart h2{
+    font-size: 20px;
+    font-weight: 600;
+    font-family:cursive;
+    color: rgba(0, 123, 255, 1);
+    margin-bottom: 16px;
+    margin-top: 8px;
+}
+
+@media (max-width: 800px) {
+    main {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    form, #savedExperiences {
+        max-width: 500px;
+    }
+
+    header h1 {
+        font-size: 20px;
+    }
+
+    form {
+        padding: 24px;
+    }
+
+    button {
+        font-size: 14px;
+    }
+}
+.more-experiences {
+    margin-top: 16px;
+    padding: 12px;
+    background-color: rgba(248, 249, 250, 1);
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    color: rgba(0, 123, 255, 1);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.more-experiences:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+.geo-section {
+    background-color: #f9f9f9;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.geo-section h3 {
+    font-size: 1.8em;
+    color: #333;
+    margin-bottom: 10px;
+    font-family: cursive;
+}
+
+.tracking-status {
+    font-size: 1.2em;
+    color: #555;
+    margin-bottom: 20px;
+    font-style: italic;
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.btn-start {
+    padding: 12px 24px;
+    background-color: rgba(0, 123, 255, 1);
+    color: rgba(255, 255, 255, 1);
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-start:hover {
+    background-color: rgba(0, 123, 220, 1);
+    transform: scale(1.05);
+}
+
+.btn-start:active {
+    background-color: rgba(0, 123, 200, 1);
+    transform: scale(0.95);
+}
+
+.btn-stop {
+    background-color: #f44336;
+    padding: 12px 24px;
+    color: rgba(255, 255, 255, 1);
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-stop:hover {
+    background-color: #e53935;
+    transform: scale(1.05);
+}
+
+.btn-stop:active {
+    background-color: #d32f2f;
+    transform: scale(0.95);
+}
+
+@media (max-width: 768px) {
+    .geo-section {
+        padding: 15px;
+    }
+
+    .geo-section h3 {
+        font-size: 1.5em;
+    }
+
+    .tracking-status {
+        font-size: 1em;
+    }
+
+    .btn-start,
+    .btn-stop {
+        padding: 10px 15px;
+        font-size: 0.9em;
+    }
+}
+#formLabel{
+    font-size: 1.5em;
+    color: #333;
+    margin-bottom: 10px;
+    font-family: cursive;
+}
+#title{
+    font-size: 1.5em;
+    color: rgba(220, 200, 180, 1);
+    font-family: cursive;
+}
