@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driving Experience Summary</title>
+    <link rel="stylesheet" href="summary.css">
+
+</head>
+<body>
+<header>
+    <div class="header-content">
+        <img src="logo.png" alt="Logo" class="logo">
+        <h1 id="title">DrivEx - Summary</h1>
+    </div>
+</header>
+
+<main>
+    <h2 id ="formLabel">Driving Experiences Summary</h2>
+
+    <div id="summaryContent"></div>
+
+    <h3>Charts</h3>
+    <div id="charts">
+        <canvas id="weatherChart" width="400" height="200"></canvas>
+        <canvas id="experiencesChart" width="400" height="200"></canvas>
+    </div>
+
+    <h3>Driving Experiences</h3>
+    <table id="experiencesTable" class="display">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Date</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Mileage</th>
+            <th>Weather</th>
+            <th>Road Condition</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <button id="return" onclick="window.location.href='index.html'">Back to Form</button>
+</main>
+
+<footer>
+    <p>Created by Humbat Jamalzadeh. &copy; 2024 All rights reserved.</p>
+</footer>
+
+<script src="summary.js" ></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+</body>
+</html>

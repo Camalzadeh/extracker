@@ -1,0 +1,7 @@
+[
+  { "traffic_condition_id": 1, "traffic_condition": "Light" },
+  { "traffic_condition_id": 2, "traffic_condition": "Moderate" },
+  { "traffic_condition_id": 3, "traffic_condition": "Heavy" },
+  { "traffic_condition_id": 4, "traffic_condition": "Standstill" }
+]
+

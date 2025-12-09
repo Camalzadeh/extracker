@@ -1,0 +1,23 @@
+[
+  {
+    "session_id": 1,
+    "start_date": "2025-05-17T08:00:00",
+    "end_date": "2025-05-17T08:30:00",
+    "mileage": 15.2,
+    "visibility_id": 1,
+    "weather_condition_id": 1,
+    "traffic_condition_ids": [1, 2],
+    "road_type_ids": [1, 2]
+  },
+  {
+    "session_id": 2,
+    "start_date": "2025-05-18T14:10:00",
+    "end_date": "2025-05-18T15:05:00",
+    "mileage": 18.3,
+    "visibility_id": 2,
+    "weather_condition_id": 2,
+    "traffic_condition_ids": [2],
+    "road_type_ids": [2, 3]
+  }
+]
+

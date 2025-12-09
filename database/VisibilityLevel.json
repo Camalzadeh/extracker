@@ -1,0 +1,7 @@
+[
+  { "visibility_id": 1, "visibility": "Clear" },
+  { "visibility_id": 2, "visibility": "Moderate" },
+  { "visibility_id": 3, "visibility": "Low" },
+  { "visibility_id": 4, "visibility": "Blinding" }
+]
+

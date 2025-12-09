@@ -1,0 +1,7 @@
+[
+  { "weather_condition_id": 1, "weather_condition": "Sunny" },
+  { "weather_condition_id": 2, "weather_condition": "Rainy" },
+  { "weather_condition_id": 3, "weather_condition": "Foggy" },
+  { "weather_condition_id": 4, "weather_condition": "Snowy" }
+]
+

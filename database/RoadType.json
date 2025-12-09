@@ -1,0 +1,7 @@
+[
+  { "road_type_id": 1, "road_type": "Urban" },
+  { "road_type_id": 2, "road_type": "Highway" },
+  { "road_type_id": 3, "road_type": "Rural" },
+  { "road_type_id": 4, "road_type": "Gravel" }
+]
+

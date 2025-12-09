@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driving Experience Log</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <div class="header-content">
+        <img src="logo.png" alt="Logo" class="logo">
+        <h1 id="title">DrivEx</h1>
+    </div>
+</header>
+<main>
+    <form id="drivingExperienceForm">
+        <h2 id="formLabel">Add New Driving Experience</h2>
+
+        <label for="date">Date:</label>
+        <input type="date" id="date" required>
+
+        <label for="startTime">Start Time:</label>
+        <input type="time" id="startTime" required>
+
+        <label for="endTime">End Time:</label>
+        <input type="time" id="endTime" required>
+
+        <label for="mileage">Mileage (km):</label>
+        <input type="number" id="mileage" min="0" step="0.1" required>
+
+        <label for="weather">Weather:</label>
+        <select id="weather" required><option value="">Loading...</option></select>
+
+        <label for="roadCondition">Road Type:</label>
+        <select id="roadCondition" required><option value="">Loading...</option></select>
+
+        <label for="visibility">Visibility:</label>
+        <select id="visibility" required><option value="">Loading...</option></select>
+
+        <label for="traffic">Traffic Condition:</label>
+        <select id="traffic" required><option value="">Loading...</option></select>
+
+        <button type="submit">Save Driving Experience</button>
+    </form>
+
+    <div id="secondPart">
+        <h2>Saved Experiences (Local View)</h2>
+        <div id="savedExperiences"></div>
+        <button type="button" id="resetButton">Reset View</button>
+    </div>
+
+    <div id="geoLocationSection" class="geo-section">
+        <h3>Geolocation Tracking</h3>
+        <p id="trackingStatus">Click "Start Driving" to begin.</p>
+        <div class="button-group">
+            <button id="startDrivingButton" type="button">Start Driving</button>
+            <button id="stopDrivingButton" type="button" style="display: none;">Stop Driving</button>
+        </div>
+    </div>
+
+</main>
+<footer><p>&copy; 2024 DrivEx</p></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
