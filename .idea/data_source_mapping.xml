@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="DataSourcePerFileMappings">
-    <file url="file://$PROJECT_DIR$/database/pdm_sql.sql" value="717114c7-1f44-4626-b699-5334063ed806" />
-    <file url="file://$PROJECT_DIR$/proj_init.sql" value="717114c7-1f44-4626-b699-5334063ed806" />
-  </component>
-</project>
