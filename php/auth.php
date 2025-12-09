@@ -1,119 +1,96 @@
 <?php
 session_start();
+// db_config.php bağlantısını daxil edin
 require_once 'db_config.php';
 
-header('Content-Type: application/json');
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
-
-$data = json_decode(file_get_contents("php://input"), true);
-
 if ($conn === null) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Database connection failed']);
+    // DB bağlantı xətası halında təkrar əlaqə cəhdi və ya fatal xəta mesajı
+    header("Location: ../html/auth.html?error=server_error");
     exit;
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && $data) {
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    $action = $data['action'] ?? '';
+    $action = $_POST['action'] ?? '';
 
     // LOGIN Prosesi (Username ilə)
     if ($action === 'login') {
-        $username = $data['username'] ?? ''; // İndi Username oxunur
-        $password = $data['password'] ?? '';
+        $username = $_POST['username'] ?? '';
+        $password = $_POST['password'] ?? '';
 
         if (empty($username) || empty($password)) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Username and password are required']);
+            header("Location: ../html/auth.html?error=login_empty");
             exit;
         }
 
         try {
-            // Username ilə istifadəçini DB-dən axtarırıq
-            $stmt = $conn->prepare("SELECT id, username, email, password FROM users WHERE username = ?");
+            $stmt = $conn->prepare("SELECT id, username, password FROM users WHERE username = ?");
             $stmt->execute([$username]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user && password_verify($password, $user['password'])) {
 
-                // Başarılı Giriş
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
 
-                http_response_code(200);
-                echo json_encode(['success' => true, 'message' => 'Login successful']);
+                // Başarılı yönlendirme (Dashboard)
+                header("Location: ../html/dashboard.html");
                 exit;
             } else {
-                // İstifadəçi tapılmadı VƏ YA şifrə yanlışdır
-                http_response_code(401);
-                echo json_encode(['success' => false, 'message' => 'Invalid username or password']);
+                header("Location: ../html/auth.html?error=invalid_credentials");
                 exit;
             }
         } catch (PDOException $e) {
             error_log("Login DB Error: " . $e->getMessage());
-            http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'An internal server error occurred']);
+            header("Location: ../html/auth.html?error=server_error");
             exit;
         }
     }
 
     // REGISTER Prosesi
     elseif ($action === 'register') {
-        $username = $data['username'] ?? '';
-        $email = $data['email'] ?? '';
-        $password = $data['password'] ?? '';
-        $confirmPassword = $data['confirm_password'] ?? '';
+        $username = $_POST['username'] ?? '';
+        $email = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? '';
+        $confirmPassword = $_POST['confirm_password'] ?? '';
 
         if (empty($username) || empty($email) || empty($password) || empty($confirmPassword)) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'All fields are required']);
+            header("Location: ../html/auth.html?error=register_empty");
             exit;
         }
         if ($password !== $confirmPassword) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Passwords do not match']);
+            header("Location: ../html/auth.html?error=password_mismatch");
             exit;
         }
 
         try {
-            // Username və ya Emailin artıq mövcud olub-olmadığını yoxlayın
+            // İstifadəçi adı/Email mövcudluğunu yoxlamaq
             $stmt = $conn->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
             $stmt->execute([$username, $email]);
 
             if ($stmt->fetch()) {
-                http_response_code(409);
-                echo json_encode(['success' => false, 'message' => 'Username or Email already registered']);
+                header("Location: ../html/auth.html?error=user_exists");
                 exit;
             }
 
-            // Şifrəni təhlükəsiz şəkildə hash-ləyin
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-            // İstifadəçini DB-yə daxil edin
+            // Yeni istifadəçini daxil etmək
             $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
             $stmt->execute([$username, $email, $hashedPassword]);
 
-            http_response_code(201);
-            echo json_encode(['success' => true, 'message' => 'Registration successful.']);
+            // Başarılı qeydiyyatdan sonra Login səhifəsinə yönləndirmə
+            header("Location: ../html/auth.html?success=registered");
             exit;
 
         } catch (PDOException $e) {
             error_log("Register DB Error: " . $e->getMessage());
-            http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'An internal server error occurred during registration']);
+            header("Location: ../html/auth.html?error=server_error");
             exit;
         }
     }
 }
 
-// Digər metodlar
-http_response_code(405);
-echo json_encode(['success' => false, 'message' => 'Method or data not valid']);
-?>
+// Bütün digər sorğular üçün ana səhifəyə yönləndirmə
+header("Location: ../html/auth.html");
+exit;

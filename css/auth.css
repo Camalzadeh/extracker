@@ -170,6 +170,28 @@ body {
     text-decoration: underline;
 }
 
+/* MESAJ STİLLƏRİ */
+#login-message, #register-message {
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    /* Başlangıçta gizli olsa da, JS göstereceği için display:block ile override edilebilir */
+    text-align: center;
+}
+
+.error-message {
+    background-color: #F8D7DA; /* Açık kırmızı */
+    color: #721C24; /* Koyu kırmızı */
+    border: 1px solid #F5C6CB;
+}
+
+.success-message {
+    background-color: #D4EDDA; /* Açık yeşil */
+    color: #155724; /* Koyu yeşil */
+    border: 1px solid #C3E6CB;
+}
+
 @media (max-width: 600px) {
     .header-container {
         flex-direction: column;
