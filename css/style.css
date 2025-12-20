@@ -1,350 +1,179 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+:root {
+    --bg-color: #0f172a;
+    --card-bg: rgba(30, 41, 59, 0.7);
+    --primary-color: #3b82f6;
+    --accent-color: #8b5cf6;
+    --text-color: #f1f5f9;
+    --text-muted: #94a3b8;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
-img {
-    max-width: 100%;
-    border-radius: 100px;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', system-ui, sans-serif;
 }
 
 body {
-    font-family: 'Arial', sans-serif;
-    display: flex;
-    flex-direction: column;
+    background-color: var(--bg-color);
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
+    color: var(--text-color);
     min-height: 100vh;
-    background-color: rgba(233, 236, 239, 1);
-    color: rgba(51, 51, 51, 1);
 }
 
-header {
-    background-color: rgba(52, 58, 64, 1);
-    color: rgba(255, 255, 255, 1);
-    padding: 16px 32px;
+a { text-decoration: none; color: inherit; }
+
+/* Layout */
+.app-container {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    min-height: 100vh;
 }
 
-.header-content {
+.sidebar {
+    width: 250px;
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border-right: 1px solid var(--border-color);
+    padding: 2rem;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    gap: 2rem;
 }
 
-header .logo {
-    width: 60px;
-    height: auto;
-    margin-right: 15px;
+.sidebar h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
-header h1 {
-    font-size: 24px;
-    font-weight: 600;
+.nav-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
-main {
+.nav-links li a {
+    display: block;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    color: var(--text-muted);
+}
+
+.nav-links li a:hover, .nav-links li a.active {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--primary-color);
+    border-left: 3px solid var(--primary-color);
+}
+
+.main-content {
     flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.header {
+    margin-bottom: 2rem;
     display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 32px;
-    gap: 32px;
-}
-
-form {
-    background-color: rgba(255, 255, 255, 1);
-    padding: 32px;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    width: 100%;
-    max-width: 400px;
-    display: flex;
-    flex-direction: column;
-}
-
-label {
-    margin-top: 16px;
-    font-weight: 600;
-    color: rgba(73, 80, 87, 1);
-}
-
-input, select {
-    width: 100%;
-    padding: 12px;
-    margin-top: 8px;
-    border: 1px solid rgba(206, 212, 218, 1);
-    border-radius: 8px;
-    font-size: 16px;
-    background-color: rgba(248, 249, 250, 1);
-    transition: border 0.3s;
-}
-
-input:focus, select:focus {
-    outline: none;
-    border-color: rgba(0, 123, 255, 1);
-    background-color: rgba(255, 255, 255, 1);
-}
-
-button[type="submit"] {
-    margin-top: 24px;
-    padding: 12px 24px;
-    background-color: rgba(0, 123, 255, 1);
-    color: rgba(255, 255, 255, 1);
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-button[type="submit"]:hover {
-    background-color: rgba(0, 86, 179, 1);
-}
-
-#savedExperiences {
-    width: 100%;
-    max-width: 400px;
-    box-sizing: border-box;
-    padding: 16px;
-    background-color: rgba(248, 249, 250, 1);
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-
-.experience {
-    margin-bottom: 16px;
-    padding: 16px;
-    border: 1px solid rgba(206, 212, 218, 1);
-    border-radius: 8px;
-    background-color: rgba(255, 255, 255, 1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.experience:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-}
-
-.experience p {
-    margin: 4px 0;
-    font-size: 14px;
-    color: rgba(73, 80, 87, 1);
-}
-
-.experience strong {
-    font-weight: 600;
-    color: rgba(52, 58, 64, 1);
-}
-
-#summaryLink {
-    margin-top: 16px;
-    text-align: center;
-}
-
-#summaryLink .btn-summary {
-    padding: 12px 24px;
-    background-color: rgba(0, 123, 255, 1);
-    color: rgba(255, 255, 255, 1);
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-#summaryLink .btn-summary:hover {
-    background-color: rgba(0, 86, 179, 1);
-    transform: translateY(-2px);
-}
-
-
-
-#resetButton {
-    margin-top: 10px;
-    text-align: center;
-    padding: 12px 24px;
-    background-color: rgba(220, 53, 69, 1);
-    color: rgba(255, 255, 255, 1);
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-#resetButton:hover {
-    background-color: rgba(170, 28, 46, 1);
-
-}
-
-footer {
-    text-align: center;
-    padding: 16px;
-    background-color: rgba(52, 58, 64, 1);
-    color: rgba(248, 249, 250, 1);
-    font-size: 14px;
-}
-#secondPart{
-    display:flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
 }
 
-#secondPart h2{
-    font-size: 20px;
-    font-weight: 600;
-    font-family:cursive;
-    color: rgba(0, 123, 255, 1);
-    margin-bottom: 16px;
-    margin-top: 8px;
-}
-
-@media (max-width: 800px) {
-    main {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    form, #savedExperiences {
-        max-width: 500px;
-    }
-
-    header h1 {
-        font-size: 20px;
-    }
-
-    form {
-        padding: 24px;
-    }
-
-    button {
-        font-size: 14px;
-    }
-}
-.more-experiences {
-    margin-top: 16px;
-    padding: 12px;
-    background-color: rgba(248, 249, 250, 1);
-    border-radius: 8px;
-    text-align: center;
-    font-weight: 600;
-    color: rgba(0, 123, 255, 1);
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.more-experiences:hover {
-    background-color: rgba(0, 123, 255, 0.1);
-}
-
-.geo-section {
-    background-color: #f9f9f9;
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    padding: 20px;
-    margin: 20px 0;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
-
-.geo-section h3 {
-    font-size: 1.8em;
-    color: #333;
-    margin-bottom: 10px;
-    font-family: cursive;
-}
-
-.tracking-status {
-    font-size: 1.2em;
-    color: #555;
-    margin-bottom: 20px;
-    font-style: italic;
-}
-
-.button-group {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-}
-
-.btn-start {
-    padding: 12px 24px;
-    background-color: rgba(0, 123, 255, 1);
-    color: rgba(255, 255, 255, 1);
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
     border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-.btn-start:hover {
-    background-color: rgba(0, 123, 220, 1);
-    transform: scale(1.05);
-}
-
-.btn-start:active {
-    background-color: rgba(0, 123, 200, 1);
-    transform: scale(0.95);
-}
-
-.btn-stop {
-    background-color: #f44336;
-    padding: 12px 24px;
-    color: rgba(255, 255, 255, 1);
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
     font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
+    transition: transform 0.2s;
 }
 
-.btn-stop:hover {
-    background-color: #e53935;
-    transform: scale(1.05);
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: white;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
 }
 
-.btn-stop:active {
-    background-color: #d32f2f;
-    transform: scale(0.95);
+.btn-danger {
+    background: #ef4444;
+    color: white;
 }
 
+.btn:active { transform: scale(0.98); }
+
+/* Cards & Tables */
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    backdrop-filter: blur(16px);
+    box-shadow: var(--glass-shadow);
+    margin-bottom: 2rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* Forms */
+.form-group { margin-bottom: 1.5rem; }
+.form-group label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); }
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    color: white;
+    font-size: 1rem;
+}
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* Tracker UI */
+.tracker-status {
+    text-align: center;
+    margin: 2rem 0;
+}
+#live-stats {
+    font-size: 2rem;
+    font-weight: bold;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-    .geo-section {
-        padding: 15px;
-    }
-
-    .geo-section h3 {
-        font-size: 1.5em;
-    }
-
-    .tracking-status {
-        font-size: 1em;
-    }
-
-    .btn-start,
-    .btn-stop {
-        padding: 10px 15px;
-        font-size: 0.9em;
-    }
-}
-#formLabel{
-    font-size: 1.5em;
-    color: #333;
-    margin-bottom: 10px;
-    font-family: cursive;
-}
-#title{
-    font-size: 1.5em;
-    color: rgba(220, 200, 180, 1);
-    font-family: cursive;
+    .app-container { flex-direction: column; }
+    .sidebar { width: 100%; flex-direction: row; justify-content: space-between; align-items: center; padding: 1rem; }
+    .nav-links { flex-direction: row; }
+    .nav-links li a { padding: 0.5rem; }
+    .nav-text { display: none; } /* Hide text on mobile if needed, or keeping it short */
 }

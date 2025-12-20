@@ -1,5 +1,6 @@
 .env
 /.idea/
 test/
+frontend/
 frontend.zip
 database.zip

@@ -1,3 +1,23 @@
+DROP TABLE IF EXISTS RoutePoints;
+DROP TABLE IF EXISTS OccursOn;
+DROP TABLE IF EXISTS TakesPlace;
+DROP TABLE IF EXISTS RoadType;
+DROP TABLE IF EXISTS TrafficCondition;
+DROP TABLE IF EXISTS DrivingSession;
+DROP TABLE IF EXISTS Visibility;
+DROP TABLE IF EXISTS WeatherCondition;
+DROP TABLE IF EXISTS Users;
+
+CREATE TABLE Users
+(
+    user_id       INT          NOT NULL AUTO_INCREMENT,
+    username      VARCHAR(50)  NOT NULL,
+    email         VARCHAR(100) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id)
+);
+
 CREATE TABLE RoadType
 (
     road_type_id INT         NOT NULL,
@@ -59,6 +79,19 @@ CREATE TABLE TakesPlace
     FOREIGN KEY (traffic_condition_id) REFERENCES TrafficCondition (traffic_condition_id)
 );
 
+CREATE TABLE RoutePoints
+(
+    point_id   INT NOT NULL AUTO_INCREMENT,
+    session_id INT NOT NULL,
+    latitude   DOUBLE NOT NULL,
+    longitude  DOUBLE NOT NULL,
+    timestamp  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (point_id),
+    FOREIGN KEY (session_id) REFERENCES DrivingSession (session_id)
+);
+
+INSERT INTO users (username, email, password_hash)
+VALUES ('testuser', 'test@extracker.com', '$2y$10$wE9N6gXbL8jTz0ZzZlG1Q.W.yP1zN7E6F2jC4B5P2C0F2D1A1');
 
 INSERT INTO Visibility
 VALUES (1, 'Clear');
