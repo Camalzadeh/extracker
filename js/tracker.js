@@ -1,107 +1,137 @@
-let watchId = null;
-let routePoints = [];
+
+
+let watchID = null;
 let totalDistance = 0;
+let routePoints = [];
 let lastLat = null;
-let lastLng = null;
+let lastLon = null;
+let startTime = null;
 
-const startBtn = document.getElementById('start-btn');
-const stopBtn = document.getElementById('stop-btn');
-const statusDisplay = document.getElementById('status-display');
-const distanceDisplay = document.getElementById('distance-display');
-const routeInput = document.getElementById('route-points');
-const distanceInput = document.getElementById('distance-input');
-const startTimeInput = document.getElementById('start-time');
-const endTimeInput = document.getElementById('end-time');
+$(document).ready(function () {
 
-// Haversine Formula for distance (in km)
+    $('#start-btn').on('click', function (e) {
+        e.preventDefault();
+        console.log('Start button clicked');
+
+        if (!navigator.geolocation) {
+            showStatus("Geolocation is not supported by your browser.", "red");
+            return;
+        }
+
+        totalDistance = 0;
+        routePoints = [];
+        lastLat = null;
+        lastLon = null;
+        startTime = new Date().toISOString();
+        $('#start-time').val(startTime);
+
+        $(this).hide();
+        $('#stop-btn').show();
+        showStatus('Thinking...', '#ffc107');
+
+        watchID = navigator.geolocation.watchPosition(updatePosition, handleError, {
+            enableHighAccuracy: true,
+            timeout: 20000,
+            maximumAge: 0
+        });
+        console.log('WatchPosition initialized', watchID);
+    });
+
+    $('#stop-btn').click(function () {
+        if (watchID !== null) {
+            navigator.geolocation.clearWatch(watchID);
+            watchID = null;
+        }
+
+        // Check if any data was actually recorded
+        if (totalDistance <= 0 && routePoints.length === 0) {
+            showStatus('Error: No location data recorded. Cannot save empty trip.', 'red');
+
+            // Reset UI state
+            $('#stop-btn').hide().text('Stop & Save').prop('disabled', false);
+            $('#start-btn').show();
+            return; // EXIT - Do not submit
+        }
+
+        let endTime = new Date().toISOString();
+        $('#end-time').val(endTime);
+        $('#distance-input').val(totalDistance.toFixed(2));
+        $('#route-points').val(JSON.stringify(routePoints));
+
+        showStatus('Trip Stopped. Saving...', '#dc3545');
+        $('#stop-btn').text('Saved').prop('disabled', true);
+
+        // Submit form only if data exists
+        $('#live-form').submit();
+    });
+});
+
+function updatePosition(position) {
+    let lat = position.coords.latitude;
+    let lon = position.coords.longitude;
+    let timestamp = new Date().toISOString();
+
+    if (lastLat !== null && lastLon !== null) {
+        let dist = calculateDistance(lastLat, lastLon, lat, lon);
+
+        // Filter small GPS jitters (min 5 meters)
+        if (dist > 0.005) {
+            totalDistance += dist;
+            $('#distance-display').text(totalDistance.toFixed(2) + ' km');
+        }
+    }
+
+    lastLat = lat;
+    lastLon = lon;
+
+    routePoints.push({
+        lat: lat,
+        lng: lon,
+        time: timestamp
+    });
+
+    showStatus('Tracking active: ' + routePoints.length + ' points', '#28a745');
+}
+
+function handleError(error) {
+    let msg = "Location error.";
+    switch (error.code) {
+        case error.PERMISSION_DENIED:
+            msg = "Location permission denied. Please enable GPS.";
+            break;
+        case error.POSITION_UNAVAILABLE:
+            msg = "Location information is unavailable.";
+            break;
+        case error.TIMEOUT:
+            msg = "The request to get user location timed out.";
+            break;
+        case error.UNKNOWN_ERROR:
+            msg = "An unknown error occurred.";
+            break;
+    }
+    console.warn('Geo Error: ' + msg);
+    showStatus(msg + " (Tracking stopped)", "red");
+
+    // Auto-stop on critical error to prevent "stuck" state
+    if (watchID !== null) {
+        navigator.geolocation.clearWatch(watchID);
+        watchID = null;
+        $('#start-btn').show();
+        $('#stop-btn').hide();
+    }
+}
+
 function calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Radius of the earth in km
-    const dLat = deg2rad(lat2 - lat1);
-    const dLon = deg2rad(lon2 - lon1);
-    const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
         Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
 }
 
-function deg2rad(deg) {
-    return deg * (Math.PI / 180);
+function showStatus(text, color) {
+    $('#status-display').text(text).css('color', color);
 }
-
-startBtn.addEventListener('click', () => {
-    if (!navigator.geolocation) {
-        alert("Geolocation is not supported by your browser.");
-        return;
-    }
-
-    // Reset
-    routePoints = [];
-    totalDistance = 0;
-    lastLat = null;
-    lastLng = null;
-
-    // UI Update
-    startBtn.style.display = 'none';
-    stopBtn.style.display = 'inline-block';
-    statusDisplay.textContent = "Tracking Active...";
-    statusDisplay.style.color = "#4ade80"; // Green
-
-    // Set Start Time
-    const now = new Date();
-    // Format YYYY-MM-DD HH:MM:SS for MySQL
-    const formatted = now.toISOString().slice(0, 19).replace('T', ' ');
-    startTimeInput.value = formatted;
-
-    watchId = navigator.geolocation.watchPosition((position) => {
-        const { latitude, longitude } = position.coords;
-        const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
-
-        // Add point
-        routePoints.push({ lat: latitude, lng: longitude, timestamp: timestamp });
-
-        // Calculate distance if we have a previous point
-        if (lastLat !== null) {
-            const dist = calculateDistance(lastLat, lastLng, latitude, longitude);
-            totalDistance += dist;
-            distanceDisplay.textContent = totalDistance.toFixed(2) + " km";
-        }
-
-        lastLat = latitude;
-        lastLng = longitude;
-
-        console.log("Point recorded:", latitude, longitude);
-
-    }, (error) => {
-        console.error("Error watching position:", error);
-        statusDisplay.textContent = "GPS Error: " + error.message;
-    }, {
-        enableHighAccuracy: true,
-        timeout: 5000,
-        maximumAge: 0
-    });
-});
-
-stopBtn.addEventListener('click', () => {
-    if (watchId !== null) {
-        navigator.geolocation.clearWatch(watchId);
-        watchId = null;
-    }
-
-    // UI Update
-    startBtn.style.display = 'inline-block';
-    stopBtn.style.display = 'none';
-    statusDisplay.textContent = "Tracking Stopped";
-    statusDisplay.style.color = "#ef4444"; // Red
-    startBtn.textContent = "Restart Tracking"; // Change text to Restart
-
-    // Set End Time
-    const now = new Date();
-    const formatted = now.toISOString().slice(0, 19).replace('T', ' ');
-    endTimeInput.value = formatted;
-
-    // Populate Hidden Inputs
-    routeInput.value = JSON.stringify(routePoints);
-    distanceInput.value = totalDistance.toFixed(2);
-});

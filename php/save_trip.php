@@ -12,17 +12,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->beginTransaction();
 
         $userId = $_SESSION['user_id'];
-        $startTime = $_POST['start_time']; // Matches start_date in DB
-        $endTime = $_POST['end_time'];     // Matches end_date in DB
+        $startTime = $_POST['start_time'];
+        $endTime = $_POST['end_time'];
         $distance = $_POST['distance'] ?? 0;
+        
+        // Validation: Prevent empty live trips
+        $tripType = $_POST['trip_type'] ?? 'manual';
+        if ($tripType === 'live' && (float)$distance <= 0) {
+            throw new Exception("Cannot save a live trip with 0 km distance.");
+        }
         $visibilityId = $_POST['visibility'];
         $weatherId = $_POST['weather'];
         $trafficId = $_POST['traffic'];
         $roadId = $_POST['road_type'];
-        // Note: 'notes' field is not supported in the current user schema, so we skip it.
         
-        // 1. Save Session to DrivingSession
-        // Schema: session_id, user_id, start_date, end_date, mileage, visibility_id, weather_condition_id
         $stmt = $conn->prepare("
             INSERT INTO DrivingSession 
             (user_id, start_date, end_date, mileage, visibility_id, weather_condition_id) 
@@ -31,17 +34,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$userId, $startTime, $endTime, $distance, $visibilityId, $weatherId]);
         $sessionId = $conn->lastInsertId();
 
-        // 2. Save Road Type to OccursOn
-        // Schema: session_id, road_type_id
+        $roadData = $_POST['road_type'];
+        if (!is_array($roadData)) {
+            $roadData = [$roadData];
+        }
+        
         $stmtOccurs = $conn->prepare("INSERT INTO OccursOn (session_id, road_type_id) VALUES (?, ?)");
-        $stmtOccurs->execute([$sessionId, $roadId]);
+        foreach ($roadData as $rId) {
+            $stmtOccurs->execute([$sessionId, $rId]);
+        }
 
-        // 3. Save Traffic Condition to TakesPlace
-        // Schema: session_id, traffic_condition_id
+        $trafficData = $_POST['traffic'];
+        if (!is_array($trafficData)) {
+            $trafficData = [$trafficData];
+        }
+
         $stmtTakes = $conn->prepare("INSERT INTO TakesPlace (session_id, traffic_condition_id) VALUES (?, ?)");
-        $stmtTakes->execute([$sessionId, $trafficId]);
+        foreach ($trafficData as $tId) {
+            $stmtTakes->execute([$sessionId, $tId]);
+        }
 
-        // 4. Save Route Points (passed as JSON string)
         $routePointsJson = $_POST['route_points'] ?? '[]';
         $routePoints = json_decode($routePointsJson, true);
 
