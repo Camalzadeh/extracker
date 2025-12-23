@@ -34,18 +34,17 @@ jobs:
         run: |
           echo "${{ secrets.PHP_CONFIG_CONTENT }}" > php/config.php
 
-      - name: 📂 Sync files via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      - name: 📂 Deploy via SFTP
+        uses: appleboy/scp-action@master
         with:
-          server: ${{ secrets.FTP_SERVER }}
+          host: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: ./www/ 
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            test/**
-            frontend/**
-            database.zip
-            frontend.zip
+          port: 22
+          source: "."
+          target: "./www"
+          # Köhnə faylları silməsin, sadəcə yeniləsin
+          rm: false 
+          strip_components: 0
+          # Göndərilməyəcək faylların siyahısı (vergüllə ayrılır)
+          exclude: ".git,.github,test,frontend,database.zip,frontend.zip,node_modules"
