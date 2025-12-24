@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/logo.png" alt="Extracker Logo" width="120">
+  <img src="docs/logo.png" alt="Extracker Logo" width="120">
   <h1>Extracker - Driving Experience Tracker</h1>
 </div>
 

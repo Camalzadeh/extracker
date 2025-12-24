@@ -1,10 +1,5 @@
 <?php
-$host = "localhost";
-$user = "root";
-$pass = "humbet2006";
-$db = "hwp_project";
-
-$config = include("config.php");
+$config = include(__DIR__ . "/config.php");
 
 try {
     $conn = new PDO("mysql:host={$config['db_host']};dbname={$config['db_name']};charset=utf8", $config['db_user'], $config['db_pass']);

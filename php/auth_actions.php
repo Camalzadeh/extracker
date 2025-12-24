@@ -1,6 +1,7 @@
 <?php
 session_start();
-require_once "db.php";
+require_once __DIR__ . "/db.php";
+require_once __DIR__ . "/classes/Queries.php";
 
 $action = $_POST['action'] ?? '';
 
@@ -18,7 +19,7 @@ if ($action === 'register') {
     }
 
     
-    $stmt = $conn->prepare("SELECT user_id FROM Users WHERE username = ? OR email = ?");
+    $stmt = $conn->prepare(Queries::CHECK_USER_EXISTS);
     $stmt->execute([$username, $email]);
     if ($stmt->fetch()) {
         $_SESSION['error'] = "Username or Email already exists!";
@@ -28,7 +29,7 @@ if ($action === 'register') {
 
     
     $hash = password_hash($password, PASSWORD_DEFAULT);
-    $stmt = $conn->prepare("INSERT INTO Users (username, email, password_hash) VALUES (?, ?, ?)");
+    $stmt = $conn->prepare(Queries::REGISTER_USER);
     
     try {
         $stmt->execute([$username, $email, $hash]);
@@ -46,7 +47,7 @@ if ($action === 'register') {
     $username = trim($_POST['username']);
     $password = $_POST['password'];
 
-    $stmt = $conn->prepare("SELECT user_id, username, password_hash FROM Users WHERE username = ?");
+    $stmt = $conn->prepare(Queries::LOGIN_USER);
     $stmt->execute([$username]);
     $user = $stmt->fetch();
 
@@ -64,3 +65,4 @@ if ($action === 'register') {
     header("Location: ../index.php");
     exit;
 }
+?>

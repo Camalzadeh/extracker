@@ -1,6 +1,9 @@
 <?php
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
 session_start();
 require_once "php/db.php";
+require_once "php/classes/TripManager.php";
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
@@ -11,31 +14,15 @@ $userId = $_SESSION['user_id'];
 $username = $_SESSION['username'];
 $page = $_GET['page'] ?? 'dashboard';
 
-$roadTypes = $conn->query("SELECT * FROM RoadType")->fetchAll();
-$visibilities = $conn->query("SELECT * FROM Visibility")->fetchAll();
-$weathers = $conn->query("SELECT * FROM WeatherCondition")->fetchAll();
-$trafficConditions = $conn->query("SELECT * FROM TrafficCondition")->fetchAll();
+$manager = new TripManager($conn);
 
-$tripsStmt = $conn->prepare("
-    SELECT 
-        ds.session_id, ds.start_date, ds.end_date, ds.mileage,
-        wc.weather_condition, 
-        v.visibility,
-        GROUP_CONCAT(DISTINCT rt.road_type SEPARATOR ', ') as road_types,
-        GROUP_CONCAT(DISTINCT tc.traffic_condition SEPARATOR ', ') as traffic_conditions
-    FROM DrivingSession ds
-    JOIN WeatherCondition wc ON ds.weather_condition_id = wc.weather_condition_id
-    JOIN Visibility v ON ds.visibility_id = v.visibility_id
-    LEFT JOIN OccursOn oo ON ds.session_id = oo.session_id
-    LEFT JOIN RoadType rt ON oo.road_type_id = rt.road_type_id
-    LEFT JOIN TakesPlace tp ON ds.session_id = tp.session_id
-    LEFT JOIN TrafficCondition tc ON tp.traffic_condition_id = tc.traffic_condition_id
-    WHERE ds.user_id = ? 
-    GROUP BY ds.session_id
-    ORDER BY ds.start_date ASC
-");
-$tripsStmt->execute([$userId]);
-$trips = $tripsStmt->fetchAll();
+$trips = $manager->getAllTrips((string)$userId);
+$userProfile = $manager->getUserProfile((string)$userId);
+
+$roadTypes = $manager->getRoadTypes();
+$visibilities = $manager->getVisibilities();
+$weathers = $manager->getWeatherConditions();
+$trafficConditions = $manager->getTrafficConditions();
 
 $weatherStats = [];
 $roadStats = [];
@@ -44,11 +31,9 @@ $visStats = [];
 $trafficStats = [];
 
 foreach ($trips as $trip) {
-    
     $w = $trip['weather_condition'];
     $weatherStats[$w] = ($weatherStats[$w] ?? 0) + 1;
 
-    
     $rList = $trip['road_types'] ? explode(', ', $trip['road_types']) : ['Unknown'];
     foreach ($rList as $r) {
         $roadStats[$r] = ($roadStats[$r] ?? 0) + 1;
@@ -58,11 +43,9 @@ foreach ($trips as $trip) {
     if (!isset($dateStats[$date])) $dateStats[$date] = 0;
     $dateStats[$date] += $trip['mileage'];
 
-    
     $v = $trip['visibility'];
     $visStats[$v] = ($visStats[$v] ?? 0) + 1;
 
-    
     $tList = $trip['traffic_conditions'] ? explode(', ', $trip['traffic_conditions']) : ['Unknown'];
     foreach ($tList as $t) {
         $trafficStats[$t] = ($trafficStats[$t] ?? 0) + 1;
@@ -71,13 +54,10 @@ foreach ($trips as $trip) {
 
 $weatherLabels = json_encode(array_keys($weatherStats));
 $weatherData = json_encode(array_values($weatherStats));
-
 $roadLabels = json_encode(array_keys($roadStats));
 $roadData = json_encode(array_values($roadStats));
-
 $visLabels = json_encode(array_keys($visStats ?? []));
 $visData = json_encode(array_values($visStats ?? []));
-
 $trafficLabels = json_encode(array_keys($trafficStats ?? []));
 $trafficData = json_encode(array_values($trafficStats ?? []));
 
@@ -95,77 +75,64 @@ $lineDataJson = json_encode($lineData);
 $totalDistance = array_sum(array_column($trips, 'mileage'));
 $totalTrips = count($trips);
 
-
-
-
-
-$userStmt = $conn->prepare("SELECT email, created_at FROM Users WHERE user_id = ?");
-$userStmt->execute([$userId]);
-$user = $userStmt->fetch();
-$userEmail = $user['email'] ?? 'user@example.com';
-$memberSince = $user['created_at'] ? date('M Y', strtotime($user['created_at'])) : 'Jan 2025';
-
+$userEmail = $userProfile['email'] ?? 'user@example.com';
+$memberSince = $userProfile['created_at'] ? date('M Y', strtotime($userProfile['created_at'])) : 'Jan 2025';
 
 $totalDurationSeconds = 0;
-foreach ($trips as $t) {
-    $start = strtotime($t['start_date']);
-    $end = strtotime($t['end_date']);
-    $totalDurationSeconds += ($end - $start);
+$i = 0;
+$count = count($trips);
+if ($count > 0) {
+    do {
+        $t = $trips[$i];
+        $start = strtotime($t['start_date']);
+        $end = strtotime($t['end_date']);
+        $totalDurationSeconds += ($end - $start);
+        $i++;
+    } while ($i < $count);
 }
+
 $totalHours = $totalDurationSeconds > 0 ? $totalDurationSeconds / 3600 : 0;
 $avgSpeed = $totalHours > 0 ? $totalDistance / $totalHours : 0;
 $fuelSaved = $totalDistance * 0.12; 
 
-
 $badges = [];
-
-
 $nightDrives = array_filter($trips, fn($t) => in_array($t['visibility'], ['Low', 'Moderate'])); 
 if (count($nightDrives) > 0) {
-    $badges[] = [
-        'icon' => 'moon',
-        'color' => 'bg-dark',
-        'title' => 'Night Rider',
-        'desc' => 'Experienced in low visibility driving.'
-    ];
+    $badges[] = ['icon' => 'moon', 'color' => 'bg-dark', 'title' => strtoupper('Night Rider'), 'desc' => 'Experienced in low visibility driving.'];
 }
-
-
 $rainDrives = array_filter($trips, fn($t) => $t['weather_condition'] === 'Rainy');
 if (count($rainDrives) > 0) {
-    $badges[] = [
-        'icon' => 'thunderstorm',
-        'color' => 'bg-primary',
-        'title' => 'Rain Master',
-        'desc' => 'Safely navigated rainy conditions.'
-    ];
+    $badges[] = ['icon' => 'thunderstorm', 'color' => 'bg-primary', 'title' => strtoupper('Rain Master'), 'desc' => 'Safely navigated rainy conditions.'];
 }
-
-
 if ($totalDistance > 50) {
-    $badges[] = [
-        'icon' => 'ribbon',
-        'color' => 'bg-warning',
-        'title' => 'Marathon Driver',
-        'desc' => 'Logged over 50km of total driving.'
-    ];
+
+    $badges[] = ['icon' => 'ribbon', 'color' => 'bg-warning', 'title' => 'Marathon Driver', 'desc' => 'Logged over 50km of total driving.'];
+}
+if (empty($badges)) {
+    $badges[] = ['icon' => 'school', 'color' => 'bg-info', 'title' => 'Learner Driver', 'desc' => 'Keep driving to earn badges!'];
 }
 
-if (empty($badges)) {
-    $badges[] = [
-        'icon' => 'school',
-        'color' => 'bg-info',
-        'title' => 'Learner Driver',
-        'desc' => 'Keep driving to earn badges!'
-    ];
+$pageTitle = 'Dashboard';
+switch ($page) {
+    case 'add_trip':
+        $pageTitle = 'Add New Trip';
+        break;
+    case 'profile':
+        $pageTitle = 'My User Profile';
+        break;
+    case 'dashboard':
+    default:
+        $pageTitle = 'Dashboard Overview';
+        break;
 }
+?>
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Extracker Dashboard</title>
+    <title>Extracker - <?php echo $pageTitle; ?></title>
     <link rel="icon" type="image/png" href="assets/logo.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
@@ -205,11 +172,6 @@ if (empty($badges)) {
         <nav class="navbar navbar-expand-lg navbar-light bg-white py-4 px-4 border-bottom d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center">
                 <ion-icon name="menu-outline" id="menu-toggle" class="primary-text fs-3 me-3" style="cursor: pointer;"></ion-icon>
-                <?php 
-                $pageTitle = 'Dashboard';
-                if ($page === 'add_trip') $pageTitle = 'Add Trip';
-                if ($page === 'profile') $pageTitle = 'My Profile';
-                ?>
                 <h2 class="fs-2 m-0"><?php echo $pageTitle; ?></h2>
             </div>
             
@@ -270,21 +232,11 @@ if (empty($badges)) {
             </div>
 
             <div class="charts-container">
-                <div class="chart-wrapper">
-                    <canvas id="weatherChart"></canvas>
-                </div>
-                <div class="chart-wrapper">
-                    <canvas id="roadChart"></canvas>
-                </div>
-                <div class="chart-wrapper">
-                    <canvas id="visibilityChart"></canvas>
-                </div>
-                <div class="chart-wrapper">
-                    <canvas id="trafficChart"></canvas>
-                </div>
-                <div class="chart-wrapper wide">
-                    <canvas id="experiencesChart"></canvas>
-                </div>
+                <div class="chart-wrapper"><canvas id="weatherChart"></canvas></div>
+                <div class="chart-wrapper"><canvas id="roadChart"></canvas></div>
+                <div class="chart-wrapper"><canvas id="visibilityChart"></canvas></div>
+                <div class="chart-wrapper"><canvas id="trafficChart"></canvas></div>
+                <div class="chart-wrapper wide"><canvas id="experiencesChart"></canvas></div>
             </div>
 
             <div class="table-container">
@@ -323,21 +275,14 @@ if (empty($badges)) {
                 </table>
             </div>
 
-
-
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     initCharts(
-                        <?php echo $weatherLabels; ?>,
-                        <?php echo $weatherData; ?>,
-                        <?php echo $roadLabels; ?>,
-                        <?php echo $roadData; ?>,
-                        <?php echo $lineLabelsJson; ?>,
-                        <?php echo $lineDataJson; ?>,
-                        <?php echo $visLabels; ?>,
-                        <?php echo $visData; ?>,
-                        <?php echo $trafficLabels; ?>,
-                        <?php echo $trafficData; ?>
+                        <?php echo $weatherLabels; ?>, <?php echo $weatherData; ?>,
+                        <?php echo $roadLabels; ?>, <?php echo $roadData; ?>,
+                        <?php echo $lineLabelsJson; ?>, <?php echo $lineDataJson; ?>,
+                        <?php echo $visLabels; ?>, <?php echo $visData; ?>,
+                        <?php echo $trafficLabels; ?>, <?php echo $trafficData; ?>
                     );
                 });
             </script>
@@ -449,14 +394,11 @@ if (empty($badges)) {
                         <button type="submit" class="btn btn-primary full-width">Save Live Trip</button>
                     </form>
                 </div>
-
-
             </div>
             <script src="js/tracker.js"></script>
 
             <?php elseif ($page === 'profile'): ?>
             <div class="profile-container">
-                
                 <div class="profile-header">
                     <div class="profile-cover"></div>
                     <div class="profile-info">
@@ -471,7 +413,6 @@ if (empty($badges)) {
                     </div>
                 </div>
 
-                
                 <div class="profile-stats-row">
                     <div class="profile-stat-card">
                         <ion-icon name="speedometer" class="stat-icon text-primary"></ion-icon>
@@ -495,12 +436,9 @@ if (empty($badges)) {
                     </div>
                 </div>
 
-                
                 <div class="experience-section">
                     <h3><ion-icon name="star" class="me-2 text-warning"></ion-icon>Earned Badges & Recent Activity</h3>
                     <div class="experience-timeline">
-                        
-                        
                         <?php foreach($badges as $badge): ?>
                         <div class="experience-item">
                             <div class="exp-icon <?php echo $badge['color']; ?>"><ion-icon name="<?php echo $badge['icon']; ?>"></ion-icon></div>
@@ -511,13 +449,8 @@ if (empty($badges)) {
                             </div>
                         </div>
                         <?php endforeach; ?>
-
                         
-                        <?php 
-                        
-                        $allTrips = array_reverse($trips);
-                        foreach ($allTrips as $trip): 
-                        ?>
+                        <?php foreach(array_reverse($trips) as $trip): ?>
                         <div class="experience-item">
                             <div class="exp-icon bg-secondary"><ion-icon name="navigate"></ion-icon></div>
                             <div class="exp-content">
@@ -535,7 +468,6 @@ if (empty($badges)) {
                                 <p>
                                     Drove <strong><?php echo number_format($trip['mileage'], 1); ?> km</strong> in 
                                     <?php echo $trip['weather_condition']; ?> weather.
-                                    <br>
                                     <small class="text-muted">
                                         Visibility: <?php echo $trip['visibility']; ?>
                                         <?php if($trip['road_types']) echo " | Roads: " . $trip['road_types']; ?>
@@ -545,17 +477,13 @@ if (empty($badges)) {
                             </div>
                         </div>
                         <?php endforeach; ?> 
-
                     </div>
                 </div>
             </div>
-
             <?php endif; ?>
-
         </div>
     </div>
 </div>
-
-    <script src="js/dashboard.js"></script>
+<script src="js/dashboard.js"></script>
 </body>
 </html>
