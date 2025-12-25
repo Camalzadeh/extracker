@@ -13,5 +13,5 @@ if (isset($config['environment']) && $config['environment'] === 'production') {
     ini_set('error_reporting', E_ALL);
 }
 
-date_default_timezone_set('UTC');
+date_default_timezone_set($config['timezone'] ?? 'Asia/Baku');
 ?>

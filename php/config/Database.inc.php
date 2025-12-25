@@ -14,8 +14,9 @@ class Database {
                 self::$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 self::$pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
                 self::$pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-                
-                self::$pdo->exec("SET time_zone='+00:00';");
+                $tzLookup = $config['timezone'] ?? 'Asia/Baku';
+                $mysqlOffset = (new DateTime('now', new DateTimeZone($tzLookup)))->format('P');
+                self::$pdo->exec("SET time_zone='$mysqlOffset';");
 
             } catch (PDOException $e) {
                 die("Database Connection Error: " . $e->getMessage());

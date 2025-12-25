@@ -38,12 +38,14 @@ class TripService {
             throw new Exception("End time must be after start time.");
         }
         
+        $now = new DateTime('now', new DateTimeZone('UTC'));
+        
         if (strtotime($startTime) > time()) {
-             throw new Exception("Start time cannot be in the future.");
+             throw new Exception("Start time cannot be in the future (Server Time: " . date('Y-m-d H:i:s') . " UTC).");
         }
 
         if (strtotime($endTime) > time()) {
-             throw new Exception("End time cannot be in the future.");
+             throw new Exception("End time cannot be in the future (Server Time: " . date('Y-m-d H:i:s') . " UTC).");
         }
 
         if ((float)$distance <= 0) {
