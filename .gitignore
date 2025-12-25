@@ -1,7 +1,4 @@
 .env
 /.idea/
-test/
-frontend/
 php/config/config.inc.php
-frontend.zip
-database.zip
+*.zip
