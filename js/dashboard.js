@@ -1,6 +1,6 @@
 function initCharts(weatherLabels, weatherData, roadLabels, roadData, lineLabels, lineData, visLabels, visData, trafficLabels, trafficData) {
 
-    
+
     const destroyChart = (id) => {
         const canvas = document.getElementById(id);
         if (canvas) {
@@ -114,25 +114,64 @@ function validateManualForm() {
     const roadTypes = document.querySelectorAll('#tab-manual input[name="road_type[]"]:checked');
     const traffic = document.querySelectorAll('#tab-manual input[name="traffic[]"]:checked');
 
-    
+
     if (!distInput.value || parseFloat(distInput.value) <= 0) {
         showManualError('Error: Distance must be greater than 0 km.');
         return false;
     }
 
-    
+
     if (roadTypes.length === 0) {
         showManualError('Error: Please select at least one Road Type.');
         return false;
     }
 
-    
+
     if (traffic.length === 0) {
         showManualError('Error: Please select at least one Traffic condition.');
         return false;
     }
 
-    return true; 
+    const startTimeInput = document.querySelector('#tab-manual input[name="start_time"]');
+    const endTimeInput = document.querySelector('#tab-manual input[name="end_time"]');
+    const weatherInput = document.querySelector('#tab-manual select[name="weather"]');
+    const visibilityInput = document.querySelector('#tab-manual select[name="visibility"]');
+
+
+    if (!weatherInput.value) {
+        showManualError('Error: Please select a Weather condition.');
+        return false;
+    }
+    if (!visibilityInput.value) {
+        showManualError('Error: Please select a Visibility Level.');
+        return false;
+    }
+
+    if (startTimeInput.value && endTimeInput.value) {
+        const start = new Date(startTimeInput.value);
+        const end = new Date(endTimeInput.value);
+        const now = new Date();
+
+        if (start > now) {
+            showManualError('Error: Start time cannot be in the future.');
+            return false;
+        }
+
+        if (end > now) {
+            showManualError('Error: End time cannot be in the future.');
+            return false;
+        }
+
+        if (end <= start) {
+            showManualError('Error: End time must be after Start time.');
+            return false;
+        }
+    } else {
+        showManualError('Error: Please select both Start and End times.');
+        return false;
+    }
+
+    return true;
 }
 
 function showManualError(msg) {
@@ -141,7 +180,7 @@ function showManualError(msg) {
         errorDiv.textContent = msg;
         errorDiv.style.display = 'block';
 
-        
+
         setTimeout(() => { errorDiv.style.display = 'none'; }, 5000);
     } else {
         alert(msg);
@@ -153,6 +192,6 @@ function showTab(mode) {
     $('.tab-btn').removeClass('active');
     $('#tab-' + mode).show();
 
-    
+
     $(`.tab-btn[onclick="showTab('${mode}')"]`).addClass('active');
 }

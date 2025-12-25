@@ -22,6 +22,34 @@ class TripService {
         $startTime = $postData['start_time'] ?? date('Y-m-d H:i:s');
         $endTime = $postData['end_time'] ?? date('Y-m-d H:i:s'); 
         
+        if (empty($postData['weather']) || empty($postData['visibility'])) {
+            throw new Exception("Weather and Visibility are required.");
+        }
+
+        if (empty($postData['road_type']) || !is_array($postData['road_type'])) {
+             throw new Exception("At least one Road Type must be selected.");
+        }
+
+        if (empty($postData['traffic']) || !is_array($postData['traffic'])) {
+             throw new Exception("At least one Traffic condition must be selected.");
+        }
+
+        if (strtotime($endTime) <= strtotime($startTime)) {
+            throw new Exception("End time must be after start time.");
+        }
+        
+        if (strtotime($startTime) > time()) {
+             throw new Exception("Start time cannot be in the future.");
+        }
+
+        if (strtotime($endTime) > time()) {
+             throw new Exception("End time cannot be in the future.");
+        }
+
+        if ((float)$distance <= 0) {
+            throw new Exception("Distance must be greater than 0.");
+        }
+
         $sessionData = [
             'start_date' => $startTime,
             'end_date' => $endTime,
