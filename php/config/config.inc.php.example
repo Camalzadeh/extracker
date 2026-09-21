@@ -1,0 +1,13 @@
+<?php
+/**
+ * Copy this file to config.inc.php and fill it in. config.inc.php is gitignored
+ * and must never be committed - in deployment it is written from a repository
+ * secret by .github/workflows/ci-cd.yml.
+ */
+return [
+    'db_host'  => 'localhost',
+    'db_name'  => 'extracker',
+    'db_user'  => 'extracker',
+    'db_pass'  => '',
+    'timezone' => 'Asia/Baku',
+];
